@@ -23,8 +23,8 @@ div.product div.media-body p{
 	padding-right: 90px;
 }
 
-div.product div.media-body a.price,
-div.product div.media-body span.price{
+div.product div.media-body .price,
+div.product div.media-body .price{
 	position: absolute;
 	bottom: 5px;
 	right: 0px;
@@ -34,6 +34,11 @@ div.product div.media-body span.price{
 	color: #fff;
 	text-decoration: none;
 	opacity: 0.8;
+}
+
+div.product div.media-body .price.disabled {
+    background-color: grey;
+    cursor: not-allowed;
 }
 
 div.product div.media-body input {
