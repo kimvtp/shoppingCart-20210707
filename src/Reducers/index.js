@@ -1,9 +1,9 @@
 import {combineReducers} from 'redux';
-import isShowMessage from './isShowMessage';
+import message from './message';
 import cartList from './cartList';
 
 let Reducers = combineReducers({
-    isShowMessage,    
+    message,    
     cartList
 
 });

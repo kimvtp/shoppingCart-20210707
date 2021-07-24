@@ -1,57 +1,61 @@
-import * as types from '../const/const';
 import {remove, map} from 'lodash'; 
 
-const defaultState = [];
+import * as types from '../const/actionType';
+import * as configs from '../const/config';
+
+
+let defaultState = [];
+let cart = JSON.parse(localStorage.getItem(configs.LOCAL_STORAGE));
+defaultState = (cart!==null && cart.length>0) ? cart : defaultState;
+
+let getProductPosition = (cartList, product) => {
+    for (var i = 0; i < cartList.length; i++) {
+        if(cartList[i].product.id === product.id) {
+           return i;
+        }
+    }
+    return -1;
+}
 
 const cartList = (state = defaultState, action) => {
     let newList = [...state];
-    
+    let {product, quantity} = action;
+    let position = -1;
+
     switch (action.type){
         case types.ADD_TO_CART: 
-            let {id, quantity} = action.item;           
-            let flag = true;
-            for (var i = 0; i < newList.length; i++) {
-                if(newList[i].id === id) {
-                    newList[i].quantity += quantity;
-                    flag = false;
-                    break;
-                }
+            position = getProductPosition(newList, product);
+
+            if (position> -1) {
+                newList[position].quantity += quantity;
+            } else {
+                newList.push({product, quantity}); 
             }
-            // newList.forEach(element => {
-            //     if(element.id === id) {
-            //         element.quantity += quantity;
-            //         flag = false;
-            //         break;
-            //     }
-            // });
+
+            localStorage.setItem(configs.LOCAL_STORAGE, JSON.stringify(newList));
             
-            if (flag) {
-                newList.push(action.item); 
-            }
-            console.log(newList);
-            return newList;
-
-        case types.DELETE_CART_ITEM:
-            console.log(action);
-            remove(newList,(item) => {
-                return item.id === action.id;
-            });
-
             return newList;
 
         case types.UPDATE_CART_ITEM:
-            console.log("actionupdate", action);
-            let itemUpdate = action.item;
-            let newQuantity = itemUpdate.quantity;
-            map(newList,(item) => {
-                if(item.id === itemUpdate.id) {
-                    item.quantity = newQuantity;
-                    return item;
-                }
-                return item;
-            });
-            console.log("new list", newList);
+            position = getProductPosition(newList, product);
+            
+            if (position> -1) {
+                newList[position].quantity = quantity;
+            }
+            
+            localStorage.setItem(configs.LOCAL_STORAGE, JSON.stringify(newList));
+
             return newList;
+
+        case types.DELETE_CART_ITEM:
+            remove(newList,(item) => {
+                return item.product.id === product.id;
+            });
+
+            localStorage.setItem(configs.LOCAL_STORAGE, JSON.stringify(newList));
+
+            return newList;
+        
         default:
             return state;
         

@@ -1,8 +1,10 @@
 import React, { Component } from "react";
 import { connect } from 'react-redux';
 
-import { actAddToCart, actShowMessage } from './../Action/actionType';
+import { actAddToCart, actChangeMessage } from '../Action/actions';
 import Helper from "./../libs/Helper";
+import Validate from "./../libs/Validate";
+import * as configMessage from './../const/messages';
 
 class ProductItem extends Component{
     constructor(props) {
@@ -17,38 +19,42 @@ class ProductItem extends Component{
         })
     }
 
-    handleAddToCart = (id, name, price, quantity) => {
-        this.props.clickAddToCart(id, name, price, quantity);
-        console.log("handleAddToCart");
+    handleAddToCart = (product, quantity) => {
+        if(Validate.checkQuantity(quantity)) {
+            this.props.clickAddToCart(product, quantity);
+            this.setState({quantity: 1});
+            this.props.successMessage(configMessage.MSG_ACT_ADD);
+        }
+        
     }
 
   render() {
-    let {item} = this.props;
+    let {product} = this.props;
     
 		return (
             <div className="media product">
                 <div className="media-left">
                     <a href="#">
-                        <img className="media-object" src={`images/${item.image.src}`} alt={item.image.alt} />
+                        <img className="media-object" src={`images/${product.image.src}`} alt={product.image.alt} />
                     </a>
                 </div>
                 <div className="media-body">
-                    <h4 className="media-heading">{item.productName}</h4>
-                    <p>{item.description}</p>
+                    <h4 className="media-heading">{product.productName}</h4>
+                    <p>{product.description}</p>
                     
-                    {this.showBuyButton(item)}
+                    {this.showBuyButton(product)}
                 </div>
             </div>
         );
 	}
     
-    showBuyButton = (item) => {
-        let price = Helper.toCurrency(item.price, "USD", "right");
+    showBuyButton = (product) => {
+        let price = Helper.toCurrency(product.price, "USD", "right");
         let xml = <span data-product="1" className="price disabled"> {price}</span>; 
-        if (item.canBuy) {
+        if (product.canBuy) {
             xml = <p>
                     <input onChange={this.handleChange} name="quantity-product-1" type="number" value={this.state.quantity} min="1" />
-                    <button onClick={() => this.handleAddToCart(item.id, item.productName, item.price, this.state.quantity)} data-product="1" className="price"> {price} </button>
+                    <button onClick={() => this.handleAddToCart(product, this.state.quantity)} data-product="1" className="price"> {price} </button>
                 </p>; 
         }
         return xml;
@@ -57,9 +63,13 @@ class ProductItem extends Component{
 
 const mapDispatchToProps = (dispatch, ownProps) => {
     return {
-        clickAddToCart: (id, name, price, quantity) => {
-            dispatch(actAddToCart(id, name, price, quantity));
-            dispatch(actShowMessage());
+        clickAddToCart: (product, quantity) => {
+            dispatch(actAddToCart(product, quantity));
+            
+        },
+
+        successMessage: (message) => {
+            dispatch(actChangeMessage(message));
         }
     }
 }

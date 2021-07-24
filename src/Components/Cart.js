@@ -1,4 +1,4 @@
-import SuccessMessage from "./SuccessMessage";
+import ShowMessage from "./ShowMessage";
 import { connect} from "react-redux";
 import React, { Component } from "react";
 
@@ -7,31 +7,12 @@ import CartItem from "./CartItem";
 class Cart extends Component{
 
 	render() {
-		let {cartList, isShowMessage} = this.props;
+		let {cartList} = this.props;
 	
-		// Total value of cart
-		let totalCart = 0;
-
 		let list = cartList.map((item, index) => { 
-			totalCart += (item.productPrice * item.quantity); 
-			
-			console.log(totalCart);
-			
-			return <CartItem key={item.id} index={index+1} item={item}></CartItem>
+			return <CartItem key={index + "-" + item.quantity} index={index} item={item}></CartItem>
 		});
-
-		// Number of items in cart
-		let totalItem = list.length;
 		
-		// Cart Summary
-		let cartSummary = <tr><th colSpan="6">There is no product in your cart</th></tr>;
-		if (totalItem !== 0) {
-			cartSummary = <tr>
-							<td colSpan="4">There are <b>{totalItem}</b> items in your shopping cart.</td>
-							<td colSpan="2" className="total-price text-left">{totalCart} USD</td>
-						</tr>;
-		}
-
 		return (
 			<div className="col-xs-12 col-sm-6 col-md-6 col-lg-6">
 				<div className="panel panel-danger"> 
@@ -49,21 +30,39 @@ class Cart extends Component{
 								</tr>
 							</thead>
 							<tbody id="my-cart-body">
-								
 								{list}
-
 							</tbody>
 							<tfoot id="my-cart-footer">
-								{cartSummary}
+								{this.cartSummary(cartList)}
 								
 							</tfoot>
 						</table>
 		
 					</div>
 				</div>
-					<SuccessMessage/>;
+					<ShowMessage/>;
 			</div>
 		  );
+	}
+
+	cartSummary = (list) => {
+		let summary = <tr><th colSpan="6">There is no product in your cart</th></tr>;
+		if (list.length !== 0) {
+			let totalCart = 0;
+			let totalItem = 0;
+
+			list.map((item) => { 
+				totalCart += (item.product.price * item.quantity); 
+				totalItem += item.quantity;
+			});
+
+			summary = <tr>
+						<td colSpan="4">There are <b>{totalItem}</b> items in your shopping cart.</td>
+						<td colSpan="2" className="total-price text-left">{totalCart} USD</td>
+					</tr>;
+		}
+
+		return summary;
 	}
   
 }
@@ -71,8 +70,7 @@ class Cart extends Component{
 const mapStateToProps = state => {
 	
 	return {
-		cartList: state.cartList,
-		isShowMessage: state.isShowMessage
+		cartList: state.cartList
 	}
   }
   

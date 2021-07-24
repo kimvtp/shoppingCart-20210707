@@ -77,7 +77,7 @@ class ProductList extends Component {
         let itemList = null;
         if (productList.length !==0 ) {
             itemList = productList.map((item, index) => {
-                return <ProductItem key={index+1} item={item} />
+                return <ProductItem key={index+1} product={item} />
             })
         }
         
